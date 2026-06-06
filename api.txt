@@ -1,0 +1,143 @@
+================================================================================
+FINANCE DASHBOARD API
+================================================================================
+
+Base URL:     http://localhost:3000/api/v1
+Auth header:  Authorization: Bearer <access_token>
+API docs:     http://localhost:3000/api-docs
+Health check: GET http://localhost:3000/health
+
+
+================================================================================
+1. AUTH — /api/v1/auth
+================================================================================
+
+Method   Endpoint                    Auth      Description
+------   --------                    ----      -----------
+POST     /auth/register              Public    Register; sends verification email (no tokens unless SKIP_EMAIL_VERIFY)
+POST     /auth/login                 Public    Login; returns access + refresh tokens (requires verified email)
+POST     /auth/verify-email          Public    Body: { token } — verify email, returns tokens
+POST     /auth/resend-verification   Public    Body: { email } — resend verification (rate limited)
+POST     /auth/forgot-password       Public    Body: { email } — send reset link (rate limited)
+POST     /auth/reset-password        Public    Body: { token, password } — set new password
+POST     /auth/refresh               Public    Issue new tokens using refreshToken body
+POST     /auth/logout                Public    Revoke refresh token
+GET      /auth/me                    Required  Current authenticated user profile
+POST     /auth/me/avatar             Required  Upload profile photo
+GET      /auth/me/avatar             Required  Download profile photo
+
+Env: CLIENT_URL, SMTP_*, JWT_EMAIL_VERIFY_SECRET, JWT_PASSWORD_RESET_SECRET
+Dev: SKIP_EMAIL_VERIFY=true skips email gate and auto-verifies on register
+
+
+================================================================================
+2. TRANSACTIONS — /api/v1/transactions
+================================================================================
+
+Method   Endpoint                            Roles        Description
+------   --------                            -----        -----------
+GET      /transactions                       user, admin  List with pagination, filters, search
+GET      /transactions/:id                   user, admin  Get single transaction
+POST     /transactions                       user, admin  Create transaction
+PATCH    /transactions/:id                   user, admin  Update own transaction only
+DELETE   /transactions/:id                   user, admin  Soft-delete own transaction only
+POST     /transactions/:id/files             user, admin  Upload file attachment (GridFS)
+GET      /transactions/:id/files/:fileId     user, admin  Download file attachment
+DELETE   /transactions/:id/files/:fileId   admin        Delete file attachment
+GET      /transactions/export/csv          user, admin  Export filtered rows as CSV
+GET      /transactions/export/excel        user, admin  Export filtered rows as Excel (.xlsx)
+GET      /transactions/export/pdf          user, admin  Export filtered rows as PDF
+GET      /transactions/import/template    user, admin  Download Excel import template (.xlsx)
+POST     /transactions/import/excel       user, admin  Upload Excel file (multipart field: file)
+
+List query parameters:
+  page, limit, type, category, categories (comma-separated, e.g. food,transport),
+  startDate, endDate, minAmount, maxAmount, search, sortBy, sortOrder
+
+UI (Transactions → Advanced): multi-category chips, date presets (7d/30d/month),
+  amount range slider + min/max inputs; active filter chips; exports use same params
+
+Access rules:
+  - Users see and manage only their own transactions.
+  - Admins see and manage all transactions.
+
+
+================================================================================
+3. DASHBOARD — /api/v1/dashboard
+================================================================================
+
+Method   Endpoint                    Roles        Description
+------   --------                    -----        -----------
+GET      /dashboard/summary          user, admin  Total income, expenses, net balance
+GET      /dashboard/insights         user, admin  Smart dashboard metrics (balance, savings rate, etc.)
+GET      /dashboard/categories       user, admin  Totals grouped by category
+GET      /dashboard/trends/monthly   user, admin  Monthly income vs expense trends
+GET      /dashboard/trends/weekly    user, admin  Weekly trends (last 6 weeks)
+GET      /dashboard/recent           user, admin  Recent transactions (query: ?limit=10)
+
+
+================================================================================
+4. USERS — /api/v1/users
+================================================================================
+
+Method   Endpoint              Roles        Description
+------   --------              -----        -----------
+GET      /users                admin        List users (pagination, filters)
+GET      /users/:id              admin        Get user by ID
+PATCH    /users/:id              user, admin  Update profile (admin may change role)
+PATCH    /users/:id/status       admin        Activate or deactivate user
+DELETE   /users/:id              admin        Delete user
+
+
+================================================================================
+FRONTEND API CLIENTS — frontend/src/api/client.js
+================================================================================
+
+API group          Used for
+---------          --------
+authAPI            Login, register, logout, session (/auth/me)
+transactionsAPI    Transactions page, file upload/download
+dashboardAPI       Dashboard page, Smart dashboard (/insights)
+usersAPI           Users management page (admin)
+
+
+================================================================================
+EXAMPLE REQUESTS
+================================================================================
+
+Login:
+  POST /api/v1/auth/login
+  Content-Type: application/json
+  Body: { "email": "user@demo.com", "password": "password123" }
+
+List transactions:
+  GET /api/v1/transactions?page=1&limit=10&type=expense
+  Authorization: Bearer <token>
+
+Dashboard insights:
+  GET /api/v1/dashboard/insights
+  Authorization: Bearer <token>
+
+
+================================================================================
+8. REAL-TIME (Socket.io)
+================================================================================
+
+Server URL:   http://localhost:3000  (same host as API, no /api/v1 path)
+Auth:         handshake auth.token = JWT access token (same as REST Bearer token)
+
+Events (server → client):
+  transaction:changed   { action: "created"|"updated"|"deleted", transactionId, ownerId }
+
+Rooms:
+  user:<userId>   — owner receives their transaction events (user-wise isolation)
+
+Data scope: all transaction queries are filtered by createdBy = authenticated user.
+Each user (including admin) only sees, edits, exports, and imports their own transactions.
+
+Frontend env (optional):
+  VITE_SOCKET_URL=http://localhost:3000
+  (defaults from VITE_API_URL with /api/v1 stripped)
+
+Emitted after POST/PATCH/DELETE /transactions (create, update, soft-delete).
+Dashboard and Transactions pages refetch data on this event without page reload.
