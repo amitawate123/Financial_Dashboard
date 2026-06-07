@@ -33,14 +33,13 @@ const verificationEmail = ({ name, verifyUrl }) => ({
 
 const passwordResetEmail = ({ name, resetUrl }) => ({
   subject: 'Reset your Fintrack password',
-  text: `Hi ${name},\n\nReset your password:\n${resetUrl}\n\nThis link expires in 1 hour.`,
+  text: `Hi ${name},\n\nWe received a request to reset your password. Open this email and tap the Reset password button.\n\nThis link expires in 1 hour.`,
   html: layout(
     'Reset your password',
     `
     <p>Hi ${escapeHtml(name)},</p>
     <p>We received a request to reset your password.</p>
     <p><a href="${resetUrl}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">Reset password</a></p>
-    <p style="font-size: 13px; color: #6b6860;">Or copy this link:<br><a href="${resetUrl}">${resetUrl}</a></p>
   `
   ),
 });
