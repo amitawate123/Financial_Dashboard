@@ -50,14 +50,6 @@ export default function Login() {
     }
   };
 
-  const fillDemo = (role) => {
-    const creds = {
-      admin: { email: 'admin@demo.com', password: 'password123' },
-      user: { email: 'user@demo.com', password: 'password123' },
-    };
-    setForm(creds[role]);
-  };
-
   return (
     <AuthPageShell
       title="Welcome back"
@@ -116,33 +108,6 @@ export default function Login() {
           </Button>
         )}
       </form>
-
-      <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
-        <p style={{ fontSize: '12px', color: 'var(--text-3)', marginBottom: 10, textAlign: 'center' }}>Demo accounts</p>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {['admin', 'user'].map((role) => (
-            <button
-              key={role}
-              type="button"
-              onClick={() => fillDemo(role)}
-              style={{
-                flex: 1,
-                padding: '6px',
-                fontSize: '12px',
-                fontWeight: 500,
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius)',
-                background: 'var(--bg)',
-                color: 'var(--text-2)',
-                cursor: 'pointer',
-                textTransform: 'capitalize',
-              }}
-            >
-              {role}
-            </button>
-          ))}
-        </div>
-      </div>
     </AuthPageShell>
   );
 }
