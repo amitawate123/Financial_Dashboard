@@ -5,6 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "start": "nodemon src/app.js",
+    "start:prod": "node src/app.js",
     "dev": "nodemon src/app.js",
     "seed": "node src/utils/seed.js",
     "test": "jest --runInBand --forceExit"

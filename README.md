@@ -134,3 +134,28 @@ NODE_ENV=development
 ```
 VITE_API_URL=http://localhost:3000/api/v1
 ```
+
+---
+
+## Docker
+
+Run MongoDB + API + frontend with Docker Compose. Most config comes from `backend/.env`; Docker overrides `MONGODB_URI` to use the local MongoDB container.
+
+For Docker, set `CLIENT_URL=http://localhost:8080` in `backend/.env` so email links work.
+
+Stop your local `npm start` backend first, or use the mapped port below.
+
+```bash
+docker compose up --build
+```
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:8080 |
+| Backend API | http://localhost:3001 |
+| API docs | http://localhost:3001/api-docs |
+| MongoDB | `mongodb://localhost:27017` (internal: `mongodb:27017`) |
+
+Seed demo data: `docker compose exec backend npm run seed`
+
+Stop: `docker compose down` — add `-v` to remove the database volume
