@@ -19,14 +19,13 @@ const layout = (title, bodyHtml) => `
 
 const verificationEmail = ({ name, verifyUrl }) => ({
   subject: 'Verify your Fintrack account',
-  text: `Hi ${name},\n\nVerify your email:\n${verifyUrl}\n\nThis link expires in 24 hours.`,
+  text: `Hi ${name},\n\nThanks for signing up. Open this email and tap the Verify email button.\n\nThis link expires in 24 hours.`,
   html: layout(
     'Verify your email',
     `
     <p>Hi ${escapeHtml(name)},</p>
     <p>Thanks for signing up. Confirm your email to start using Fintrack.</p>
     <p><a href="${verifyUrl}" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">Verify email</a></p>
-    <p style="font-size: 13px; color: #6b6860;">Or copy this link:<br><a href="${verifyUrl}">${verifyUrl}</a></p>
   `
   ),
 });
