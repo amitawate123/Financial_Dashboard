@@ -26,7 +26,7 @@ const issueTokens = async (user) => {
   return { user, token, refreshToken };
 };
 
-const register = async ({ name, email, password, role }) => {
+const register = async ({ name, email, password }) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new AppError('Email already in use.', 409);
 
@@ -35,7 +35,7 @@ const register = async ({ name, email, password, role }) => {
     name,
     email,
     password,
-    role,
+    role: 'user',
     isEmailVerified: isVerified,
     ...(isVerified ? { emailVerifiedAt: new Date() } : {}),
   });

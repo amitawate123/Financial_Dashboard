@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Button, Input, Select, Alert } from '../components/ui';
+import { Button, Input, Alert } from '../components/ui';
 import AuthPageShell, { AuthFooterLink, AuthLink } from '../components/auth/AuthPageShell';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'user' });
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -58,10 +58,6 @@ export default function Register() {
           placeholder="Min. 6 characters"
           required
         />
-        <Select label="Role" value={form.role} onChange={set('role')}>
-          <option value="user">User</option>
-          <option value="admin">Admin — full access</option>
-        </Select>
         <Button type="submit" loading={loading} style={{ width: '100%', marginTop: 4 }}>
           Create account
         </Button>
